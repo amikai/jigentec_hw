@@ -62,8 +62,8 @@ func main() {
 		log.Fatalf("failed to create file: %s", err)
 	}
 	defer file.Close()
-	for _, b := range chunks {
-		if _, err := writer.Write(b.Data); err != nil {
+	for _, chunk := range chunks {
+		if _, err := writer.Write(chunk.Data); err != nil {
 			log.Fatalf("failed to write byte to file: %s", err)
 		}
 	}
