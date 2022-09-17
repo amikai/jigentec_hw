@@ -22,18 +22,16 @@ type ChunkStream struct {
 }
 
 func (cs *ChunkStream) Read(r io.Reader) error {
-	err := binary.Read(r, binary.BigEndian, &cs.Seq)
+	seqAndLenBytes := make([]byte, seqSize+lenSize)
+	_, err := io.ReadFull(r, seqAndLenBytes)
 	if err != nil {
-		return fmt.Errorf("failed read seq num: %w", err)
+		return fmt.Errorf("faild to seq and len: %w", err)
 	}
-
-	err = binary.Read(r, binary.BigEndian, &cs.Len)
-	if err != nil {
-		return fmt.Errorf("failed read len: %w", err)
-	}
+	cs.Seq = binary.BigEndian.Uint32(seqAndLenBytes[seqOffset : seqOffset+seqSize])
+	cs.Len = binary.BigEndian.Uint16(seqAndLenBytes[lenOffset : lenOffset+lenSize])
 
 	dataBytes := make([]byte, cs.Len)
-	_, err = r.Read(dataBytes)
+	_, err = io.ReadFull(r, dataBytes)
 	if err != nil {
 		return fmt.Errorf("faild to read data: %w", err)
 	}
