@@ -22,7 +22,7 @@ const (
 )
 
 var (
-	filePath = kingpin.Flag("file", "output file path").Default("./file.txt").String()
+	filePath = kingpin.Flag("file", "output file path").Default("./download_file").String()
 )
 
 func main() {
