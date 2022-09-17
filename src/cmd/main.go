@@ -34,6 +34,7 @@ func main() {
 	}
 	defer conn.Close()
 
+	// collect packets and parse
 	chunks := []*core.ChunkStream{}
 	for {
 		chunk := &core.ChunkStream{}
@@ -47,14 +48,15 @@ func main() {
 		chunks = append(chunks, chunk)
 	}
 
+	// sort all chunk by sequence number
 	sort.Slice(chunks, func(i, j int) bool { return chunks[i].Seq < chunks[j].Seq })
 
+	// write all chunks to file
 	file, err := os.Create(*fileName)
 	if err != nil {
 		log.Fatalf("failed to create file: %s", err)
 	}
 	defer file.Close()
-
 	for _, b := range chunks {
 		if _, err := file.Write(b.Data); err != nil {
 			log.Fatalf("failed to write byte to file: %s", err)
