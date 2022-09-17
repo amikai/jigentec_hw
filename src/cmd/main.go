@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"io"
@@ -36,10 +37,11 @@ func main() {
 
 	// collect packets and parse
 	chunks := []*core.ChunkStream{}
+	connBuf := bufio.NewReader(conn)
 	var totalSize uint64
 	for {
 		chunk := &core.ChunkStream{}
-		if err := chunk.Read(conn); err != nil {
+		if err := chunk.Read(connBuf); err != nil {
 			if errors.Is(err, io.EOF) {
 				log.Infof("Read done: total size of data: %d", totalSize)
 				break
