@@ -32,7 +32,7 @@ func (cs *ChunkStream) Read(r io.Reader, pool *utils.Pool) error {
 	cs.Seq = binary.BigEndian.Uint32(seqAndLenBytes[seqOffset : seqOffset+seqSize])
 	cs.Len = binary.BigEndian.Uint16(seqAndLenBytes[lenOffset : lenOffset+lenSize])
 
-	dataBytes := make([]byte, cs.Len)
+	dataBytes := pool.Get(int(cs.Len))
 	_, err = io.ReadFull(r, dataBytes)
 	if err != nil {
 		return fmt.Errorf("faild to read data: %w", err)
