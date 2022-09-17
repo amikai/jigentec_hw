@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"jigentec.homework/utils"
 )
 
 type fakeReader struct {
@@ -30,9 +31,10 @@ func TestChunkStreamRead(t *testing.T) {
 		Data: []byte{0x11, 0x12},
 	}
 
+	bytePool := utils.NewPool()
 	fr := &fakeReader{packets: packets}
 	cs := &ChunkStream{}
-	cs.Read(fr)
+	cs.Read(fr, bytePool)
 
 	assert.Equal(t, want, cs)
 

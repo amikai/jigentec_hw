@@ -13,6 +13,7 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	"jigentec.homework/core"
+	"jigentec.homework/utils"
 )
 
 const (
@@ -37,11 +38,12 @@ func main() {
 
 	// collect packets and parse
 	chunks := []*core.ChunkStream{}
+	bytePool := utils.NewPool()
 	connBuf := bufio.NewReader(conn)
 	var totalSize uint64
 	for {
 		chunk := &core.ChunkStream{}
-		if err := chunk.Read(connBuf); err != nil {
+		if err := chunk.Read(connBuf, bytePool); err != nil {
 			if errors.Is(err, io.EOF) {
 				log.Infof("Read done: total size of data: %d", totalSize)
 				break

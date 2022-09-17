@@ -4,6 +4,8 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+
+	"jigentec.homework/utils"
 )
 
 // each chunk size is 6 bytes
@@ -21,8 +23,8 @@ type ChunkStream struct {
 	Data []byte
 }
 
-func (cs *ChunkStream) Read(r io.Reader) error {
-	seqAndLenBytes := make([]byte, seqSize+lenSize)
+func (cs *ChunkStream) Read(r io.Reader, pool *utils.Pool) error {
+	seqAndLenBytes := pool.Get(seqSize + lenSize)
 	_, err := io.ReadFull(r, seqAndLenBytes)
 	if err != nil {
 		return fmt.Errorf("faild to seq and len: %w", err)
