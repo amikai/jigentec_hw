@@ -57,14 +57,16 @@ func main() {
 
 	// write all chunks to file
 	file, err := os.Create(*filePath)
+	writer := bufio.NewWriter(file)
 	if err != nil {
 		log.Fatalf("failed to create file: %s", err)
 	}
 	defer file.Close()
 	for _, b := range chunks {
-		if _, err := file.Write(b.Data); err != nil {
+		if _, err := writer.Write(b.Data); err != nil {
 			log.Fatalf("failed to write byte to file: %s", err)
 		}
 	}
+	writer.Flush()
 	log.Infof("Output file: %s", *filePath)
 }
