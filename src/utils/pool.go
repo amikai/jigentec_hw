@@ -3,7 +3,6 @@ package utils
 type Pool struct {
 	pos int
 	buf []byte
-	cnt int
 }
 
 const maxPoolSize = 50 * 1024
