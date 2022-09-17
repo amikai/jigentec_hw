@@ -36,15 +36,17 @@ func main() {
 
 	// collect packets and parse
 	chunks := []*core.ChunkStream{}
+	var totalSize uint64
 	for {
 		chunk := &core.ChunkStream{}
 		if err := chunk.Read(conn); err != nil {
 			if errors.Is(err, io.EOF) {
-				log.Infof("Read done: total number of chunks: %d", len(chunks))
+				log.Infof("Read done: total size of data: %d", totalSize)
 				break
 			}
 			log.Fatalf("chunk stream read failed: %s", err)
 		}
+		totalSize += uint64(chunk.Len)
 		chunks = append(chunks, chunk)
 	}
 
