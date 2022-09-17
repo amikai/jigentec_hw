@@ -21,7 +21,7 @@ const (
 )
 
 var (
-	fileName = kingpin.Arg("file", "output file name").Default("./file.txt").String()
+	filePath = kingpin.Flag("file", "output file path").Default("./file.txt").String()
 )
 
 func main() {
@@ -54,7 +54,7 @@ func main() {
 	sort.Slice(chunks, func(i, j int) bool { return chunks[i].Seq < chunks[j].Seq })
 
 	// write all chunks to file
-	file, err := os.Create(*fileName)
+	file, err := os.Create(*filePath)
 	if err != nil {
 		log.Fatalf("failed to create file: %s", err)
 	}
@@ -64,5 +64,5 @@ func main() {
 			log.Fatalf("failed to write byte to file: %s", err)
 		}
 	}
-	log.Infof("Output file: %s", *fileName)
+	log.Infof("Output file: %s", *filePath)
 }
