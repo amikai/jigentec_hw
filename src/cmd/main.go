@@ -7,7 +7,6 @@ import (
 	"io"
 	"net"
 	"os"
-	"sort"
 
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -26,6 +25,10 @@ var (
 	filePath = kingpin.Flag("file", "output file path").Default("./download_file").String()
 )
 
+const (
+	MaxUint32 = 4294967295
+)
+
 func main() {
 	kingpin.Parse()
 
@@ -37,9 +40,11 @@ func main() {
 	defer conn.Close()
 
 	// collect packets and parse
-	chunks := []*core.ChunkStream{}
+	chunks := map[uint32]*core.ChunkStream{}
 	bytePool := utils.NewPool()
 	connBuf := bufio.NewReader(conn)
+
+	var minSeq, maxSeq uint32 = MaxUint32, 0
 	var totalSize uint64
 	for {
 		chunk := &core.ChunkStream{}
@@ -51,11 +56,15 @@ func main() {
 			log.Fatalf("chunk stream read failed: %s", err)
 		}
 		totalSize += uint64(chunk.Len)
-		chunks = append(chunks, chunk)
-	}
+		chunks[chunk.Seq] = chunk
+		if chunk.Seq < minSeq {
+			minSeq = chunk.Seq
+		}
 
-	// sort all chunk by sequence number
-	sort.Slice(chunks, func(i, j int) bool { return chunks[i].Seq < chunks[j].Seq })
+		if chunk.Seq > maxSeq {
+			maxSeq = chunk.Seq
+		}
+	}
 
 	// write all chunks to file
 	file, err := os.Create(*filePath)
@@ -64,9 +73,12 @@ func main() {
 		log.Fatalf("failed to create file: %s", err)
 	}
 	defer file.Close()
-	for _, chunk := range chunks {
-		if _, err := writer.Write(chunk.Data); err != nil {
-			log.Fatalf("failed to write byte to file: %s", err)
+	for seq := minSeq; seq <= maxSeq; seq++ {
+		if chunk, ok := chunks[seq]; ok {
+			if _, err := writer.Write(chunk.Data); err != nil {
+				log.Fatalf("failed to write byte to file: %s", err)
+			}
+
 		}
 	}
 	writer.Flush()
