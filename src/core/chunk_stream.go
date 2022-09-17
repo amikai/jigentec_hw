@@ -1,7 +1,6 @@
 package core
 
 import (
-	"bytes"
 	"encoding/binary"
 	"fmt"
 	"io"
@@ -23,28 +22,20 @@ type ChunkStream struct {
 }
 
 func (cs *ChunkStream) Read(r io.Reader) error {
-	seqLenBytes := make([]byte, 6)
-	_, err := r.Read(seqLenBytes)
-	if err != nil {
-		return fmt.Errorf("faild to read seq and len: %w", err)
-	}
-
-	buf := bytes.NewReader(seqLenBytes[seqOffset : seqOffset+seqSize])
-	err = binary.Read(buf, binary.BigEndian, &cs.Seq)
+	err := binary.Read(r, binary.BigEndian, &cs.Seq)
 	if err != nil {
 		return fmt.Errorf("failed read seq num: %w", err)
 	}
 
-	buf = bytes.NewReader(seqLenBytes[lenOffset : lenOffset+lenSize])
-	err = binary.Read(buf, binary.BigEndian, &cs.Len)
+	err = binary.Read(r, binary.BigEndian, &cs.Len)
 	if err != nil {
-		return fmt.Errorf("failed read seq num: %w", err)
+		return fmt.Errorf("failed read len: %w", err)
 	}
 
 	dataBytes := make([]byte, cs.Len)
 	_, err = r.Read(dataBytes)
 	if err != nil {
-		return fmt.Errorf("faild to read seq and len: %w", err)
+		return fmt.Errorf("faild to read data: %w", err)
 	}
 	cs.Data = dataBytes
 	return nil
