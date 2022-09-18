@@ -8,7 +8,10 @@ import (
 	"jigentec.homework/utils"
 )
 
-// each chunk size is 6 bytes
+// +--------------------------------+----------------+------------------------------------
+// |   Sequence Number (32-bits)    |  Len (16-bits) | File data (Len number of bytes) ...
+// +--------------------------------+----------------+------------------------------------
+
 const seqOffset int = 0
 const seqSize int = 4
 
